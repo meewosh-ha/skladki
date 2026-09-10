@@ -1,0 +1,507 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Skarbnik 1d</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  html{color-scheme:light dark;}
+  img{max-width:100%;}
+  [hidden]{display:none!important;}
+  :root{
+    --bg:#F6F4EE;
+    --surface:#FFFFFF;
+    --surface-alt:#ECE7DC;
+    --ink:#232C36;
+    --ink-soft:#3E4854;
+    --muted:#6C7686;
+    --border:#DEDACD;
+    --accent:#2B4C7E;
+    --accent-soft:#E2EAF4;
+    --accent-ink:#1C3557;
+    --good:#2F7A4B;
+    --good-soft:#E3F1E6;
+    --warn:#9A6B10;
+    --warn-soft:#F6ECD6;
+    --bad:#8A3E3A;
+    --bad-soft:#F2E4E1;
+    --shadow: 0 1px 2px rgba(35,44,54,0.06), 0 6px 20px -12px rgba(35,44,54,0.25);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#171B21;
+      --surface:#1E242C;
+      --surface-alt:#252C35;
+      --ink:#EDEFF2;
+      --ink-soft:#C7CCD3;
+      --muted:#8B93A0;
+      --border:#333B46;
+      --accent:#7FA4DA;
+      --accent-soft:#233247;
+      --accent-ink:#CFE0F7;
+      --good:#7FC494;
+      --good-soft:#20332A;
+      --warn:#E0B559;
+      --warn-soft:#3A311D;
+      --bad:#E19891;
+      --bad-soft:#3A2624;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -14px rgba(0,0,0,0.55);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#171B21;
+    --surface:#1E242C;
+    --surface-alt:#252C35;
+    --ink:#EDEFF2;
+    --ink-soft:#C7CCD3;
+    --muted:#8B93A0;
+    --border:#333B46;
+    --accent:#7FA4DA;
+    --accent-soft:#233247;
+    --accent-ink:#CFE0F7;
+    --good:#7FC494;
+    --good-soft:#20332A;
+    --warn:#E0B559;
+    --warn-soft:#3A311D;
+    --bad:#E19891;
+    --bad-soft:#3A2624;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -14px rgba(0,0,0,0.55);
+  }
+
+  *{box-sizing:border-box;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+    padding-inline:20px;
+    padding-block:32px 64px;
+    line-height:1.45;
+  }
+  .wrap{max-width:920px;margin-inline:auto;}
+
+  .masthead{
+    display:flex;
+    flex-wrap:wrap;
+    align-items:flex-end;
+    justify-content:space-between;
+    gap:16px;
+    margin-bottom:28px;
+    padding-bottom:20px;
+    border-bottom:2px solid var(--ink);
+  }
+  .masthead h1{
+    font-family:'Fraunces',Georgia,serif;
+    font-weight:700;
+    font-size:clamp(1.7rem,4vw,2.3rem);
+    letter-spacing:-0.01em;
+    margin:0;
+    color:var(--ink);
+  }
+  .masthead .updated{
+    font-size:0.82rem;
+    color:var(--muted);
+  }
+  .masthead .updated #updatedDate{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--ink-soft);
+  }
+
+  .category-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+  }
+  .category-pill{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    background:var(--accent-soft);
+    color:var(--accent-ink);
+    border:1px solid var(--accent);
+    border-radius:999px;
+    padding:7px 14px;
+    font-size:0.85rem;
+    font-weight:600;
+  }
+  .category-target{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.8rem;
+    color:var(--muted);
+  }
+
+  .toolbar{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+    justify-content:flex-end;
+    margin-bottom:14px;
+  }
+  .sort-toggle{
+    display:flex;
+    border:1px solid var(--border);
+    border-radius:8px;
+    overflow:hidden;
+    background:var(--surface);
+  }
+  .sort-toggle button{
+    font-family:inherit;
+    font-size:0.8rem;
+    font-weight:500;
+    color:var(--muted);
+    background:transparent;
+    border:none;
+    padding:8px 12px;
+    cursor:pointer;
+  }
+  .sort-toggle button.active{
+    background:var(--accent);
+    color:#fff;
+  }
+  .sort-toggle button:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
+
+  .roster{
+    border:1px solid var(--border);
+    border-radius:12px;
+    overflow:hidden;
+    background:var(--surface);
+    box-shadow:var(--shadow);
+  }
+  .roster-head{
+    display:grid;
+    grid-template-columns:2.3fr 1fr 1fr;
+    gap:8px;
+    padding:10px 16px;
+    background:var(--surface-alt);
+    font-size:0.7rem;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--muted);
+    font-weight:600;
+  }
+  .roster-head span:nth-child(2),
+  .roster-head span:nth-child(3){text-align:right;}
+
+  .group-header{
+    padding:9px 16px;
+    background:var(--surface-alt);
+    border-top:1px solid var(--border);
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    font-weight:600;
+    color:var(--ink-soft);
+  }
+  .group-header .count{
+    color:var(--muted);
+    font-weight:500;
+    text-transform:none;
+    letter-spacing:normal;
+  }
+
+  .row{
+    display:grid;
+    grid-template-columns:2.3fr 1fr 1fr;
+    gap:8px;
+    align-items:center;
+    padding:11px 16px;
+    border-top:1px solid var(--border);
+    cursor:pointer;
+  }
+  .row:hover{background:var(--surface-alt);}
+  .row .name{
+    font-weight:600;
+    color:var(--ink);
+    font-size:0.92rem;
+  }
+  .row .name .no{
+    color:var(--muted);
+    font-weight:500;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.78rem;
+    margin-right:7px;
+  }
+  .amount{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.88rem;
+    text-align:right;
+    font-variant-numeric:tabular-nums;
+    color:var(--ink-soft);
+  }
+  .status{text-align:right;}
+  .badge{
+    display:inline-block;
+    font-size:0.72rem;
+    font-weight:600;
+    padding:3px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .badge.paid{background:var(--good-soft);color:var(--good);}
+  .badge.partial{background:var(--warn-soft);color:var(--warn);}
+  .badge.none{background:var(--bad-soft);color:var(--bad);}
+
+  .detail{
+    grid-column:1 / -1;
+    padding:0 16px 14px 16px;
+    border-top:1px dashed var(--border);
+    margin-top:0;
+    font-size:0.82rem;
+    color:var(--muted);
+  }
+  .detail[hidden]{display:none;}
+  .detail ul{margin:10px 0 0;padding-left:0;list-style:none;}
+  .detail li{
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+    padding:5px 0;
+    border-bottom:1px solid var(--border);
+  }
+  .detail li:last-child{border-bottom:none;}
+  .detail .d-amount{
+    font-family:'IBM Plex Mono',monospace;
+    color:var(--ink-soft);
+    font-variant-numeric:tabular-nums;
+  }
+  .detail .d-date{
+    font-family:'IBM Plex Mono',monospace;
+  }
+  .detail .empty{padding:10px 0;font-style:italic;}
+
+  .row-wrap{display:contents;}
+
+  footer{
+    margin-top:22px;
+    font-size:0.78rem;
+    color:var(--muted);
+    text-align:center;
+  }
+
+  @media (max-width:640px){
+    .roster-head{display:none;}
+    .row{
+      grid-template-columns:1fr auto;
+      grid-template-areas:"name status" "amount amount";
+      row-gap:6px;
+      padding:12px 14px;
+    }
+    .row .name{grid-area:name;}
+    .row .status{grid-area:status;}
+    .row .amount{grid-area:amount;text-align:left;}
+    .row .amount::before{content:"Wpłacono: ";color:var(--muted);}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <h1>Klasa 1d</h1>
+    <div class="updated">Ostatnia aktualizacja: <span id="updatedDate">—</span></div>
+  </div>
+
+  <div class="category-row">
+    <span class="category-pill" id="categoryPill">Składka klasowa 2026/27</span>
+    <span class="category-target" id="categoryTarget"></span>
+  </div>
+
+  <div class="toolbar">
+    <div class="sort-toggle" role="group" aria-label="Kolejność">
+      <button type="button" data-sort="list" class="active">Lista klasy</button>
+      <button type="button" data-sort="paid">Wpłaty</button>
+    </div>
+  </div>
+
+  <div class="roster">
+    <div class="roster-head" id="rosterHead">
+      <span>Dziecko</span>
+      <span>Wpłacono</span>
+      <span>Status</span>
+    </div>
+    <div id="rosterBody"></div>
+  </div>
+
+  <footer>Rejestr prowadzony ręcznie przez skarbnika klasy · dane aktualizowane po każdej zgłoszonej wpłacie</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var CLASS_INFO = {
+    updated: "2026-09-10T21:48"
+  };
+
+  var STUDENTS = [
+    "Bekisz Aleksander","Bilon Mikołaj","Bolechowski Kaj","Drozdowski Olivier",
+    "Dziurla Maja","Fiedorowicz Laura","Foltyński Nikodem","Górkiewicz Julia",
+    "Hałamko Filip","Hresiuk Anna","Jałguszewski Mikołaj","Kasperska Laura",
+    "Kubsik Jagoda","Kwaśnicki Stanisław","Mackiewicz Ewa","Martinez-Smolińska Lena",
+    "Podhajski Szymo","Popovych Sofia","Przybył Carmen","Rudnicka Rosalia",
+    "Szkolmowski Jakub","Wieczorek Joaachim","Zabołotna Zuzanna"
+  ].map(function(name, i){ return { id: "s" + (i+1), name: name }; });
+
+  // target: pełna kwota roczna (informacyjnie). dueNow: próg, od którego liczy się
+  // "Opłacone" w bieżącym okresie — I semestr: 150 zł, II semestr: 300 zł (zmienić na starcie II semestru).
+  var CATEGORIES = [
+    { id: "skladka-2026-27", name: "Składka klasowa 2026/27", target: 300, dueNow: 150, note: "300 zł/rok · 150 zł/semestr", active: true }
+  ];
+
+  // Każdy wpis: { studentId, categoryId, amount, date: "YYYY-MM-DD", note }
+  var PAYMENTS = [
+    { studentId: "s6",  categoryId: "skladka-2026-27", amount: 200, date: "2026-09-10" }, // Fiedorowicz Laura
+    { studentId: "s20", categoryId: "skladka-2026-27", amount: 200, date: "2026-09-10" }, // Rudnicka Rosalia
+    { studentId: "s13", categoryId: "skladka-2026-27", amount: 200, date: "2026-09-10" }, // Kubsik Jagoda
+    { studentId: "s18", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-10" }, // Popovych Sofia
+    { studentId: "s11", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-10" }, // Jałguszewski Mikołaj
+    { studentId: "s7",  categoryId: "skladka-2026-27", amount: 200, date: "2026-09-10" }, // Foltyński Nikodem
+    { studentId: "s5",  categoryId: "skladka-2026-27", amount: 200, date: "2026-09-10" }, // Dziurla Maja
+    { studentId: "s12", categoryId: "skladka-2026-27", amount: 200, date: "2026-09-10" }, // Kasperska Laura
+    { studentId: "s8",  categoryId: "skladka-2026-27", amount: 200, date: "2026-09-10" }, // Górkiewicz Julia
+    { studentId: "s15", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-10" }, // Mackiewicz Ewa
+    { studentId: "s10", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-10" }  // Hresiuk Anna
+  ];
+
+  var ACTIVE_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
+  var sortMode = "list";
+
+  function money(n){
+    return n.toLocaleString("pl-PL", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł";
+  }
+
+  function paidFor(studentId, categoryId){
+    return PAYMENTS
+      .filter(function(p){ return p.studentId === studentId && p.categoryId === categoryId; })
+      .reduce(function(sum, p){ return sum + p.amount; }, 0);
+  }
+
+  function historyFor(studentId, categoryId){
+    return PAYMENTS
+      .filter(function(p){ return p.studentId === studentId && p.categoryId === categoryId; })
+      .sort(function(a,b){ return a.date < b.date ? -1 : 1; });
+  }
+
+  function statusFor(paid, dueNow){
+    if (paid <= 0) return "none";
+    if (paid >= dueNow) return "paid";
+    return "partial";
+  }
+
+  function statusLabel(status){
+    return status === "paid" ? "Opłacone" : status === "partial" ? "Częściowo" : "Brak wpłaty";
+  }
+
+  function fmtDate(iso){
+    var parts = iso.split("-");
+    return parts[2] + "." + parts[1] + "." + parts[0];
+  }
+
+  function fmtDateTime(iso){
+    var datePart = iso.split("T")[0];
+    var timePart = (iso.split("T")[1] || "00:00").slice(0,5);
+    return fmtDate(datePart) + " " + timePart;
+  }
+
+  function makeRowPair(r){
+    var listIndex = STUDENTS.indexOf(r.student) + 1;
+
+    var wrap = document.createElement("div");
+    wrap.className = "row-wrap";
+
+    var row = document.createElement("div");
+    row.className = "row";
+    row.setAttribute("tabindex", "0");
+    row.setAttribute("role", "button");
+    row.setAttribute("aria-expanded", "false");
+
+    var history = historyFor(r.student.id, ACTIVE_CATEGORY.id);
+
+    row.innerHTML =
+      '<div class="name"><span class="no">' + listIndex + '.</span>' + r.student.name + '</div>' +
+      '<div class="amount">' + money(r.paid) + '</div>' +
+      '<div class="status"><span class="badge ' + r.status + '">' + statusLabel(r.status) + '</span></div>';
+
+    var detail = document.createElement("div");
+    detail.className = "detail";
+    detail.hidden = true;
+    if (history.length === 0) {
+      detail.innerHTML = '<div class="empty">Brak odnotowanych wpłat w tej kategorii.</div>';
+    } else {
+      var items = history.map(function(p){
+        return '<li><span><span class="d-date">' + fmtDate(p.date) + '</span>' + (p.note ? " · " + p.note : "") + '</span><span class="d-amount">' + money(p.amount) + '</span></li>';
+      }).join("");
+      detail.innerHTML = '<ul>' + items + '</ul>';
+    }
+
+    function toggle(){
+      var isHidden = detail.hidden;
+      detail.hidden = !isHidden;
+      row.setAttribute("aria-expanded", String(isHidden));
+    }
+    row.addEventListener("click", toggle);
+    row.addEventListener("keydown", function(e){
+      if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggle(); }
+    });
+
+    wrap.appendChild(row);
+    wrap.appendChild(detail);
+    return wrap;
+  }
+
+  function render(){
+    var cat = ACTIVE_CATEGORY;
+    document.getElementById("categoryPill").textContent = cat.name;
+    document.getElementById("categoryTarget").textContent = "Cel: " + cat.note;
+    document.getElementById("updatedDate").textContent = fmtDateTime(CLASS_INFO.updated);
+
+    var rows = STUDENTS.map(function(s){
+      var paid = paidFor(s.id, cat.id);
+      var status = statusFor(paid, cat.dueNow);
+      return { student: s, paid: paid, status: status };
+    });
+
+    var body = document.getElementById("rosterBody");
+    body.innerHTML = "";
+
+    if (sortMode === "paid") {
+      var settled = rows.filter(function(r){ return r.status === "paid"; });
+      var owing = rows.filter(function(r){ return r.status !== "paid"; });
+
+      var h1 = document.createElement("div");
+      h1.className = "group-header";
+      h1.innerHTML = "Bez zaległości <span class=\"count\">(" + settled.length + ")</span>";
+      body.appendChild(h1);
+      settled.forEach(function(r){ body.appendChild(makeRowPair(r)); });
+
+      var h2 = document.createElement("div");
+      h2.className = "group-header";
+      h2.innerHTML = "Do przypomnienia <span class=\"count\">(" + owing.length + ")</span>";
+      body.appendChild(h2);
+      owing.forEach(function(r){ body.appendChild(makeRowPair(r)); });
+    } else {
+      rows.forEach(function(r){ body.appendChild(makeRowPair(r)); });
+    }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".sort-toggle button"), function(btn){
+    btn.addEventListener("click", function(){
+      Array.prototype.forEach.call(document.querySelectorAll(".sort-toggle button"), function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      sortMode = btn.getAttribute("data-sort");
+      render();
+    });
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
