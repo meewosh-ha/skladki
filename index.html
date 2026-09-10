@@ -188,21 +188,39 @@
   .roster-head span:nth-child(3){text-align:right;}
 
   .group-header{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    width:100%;
     padding:9px 16px;
     background:var(--surface-alt);
     border-top:1px solid var(--border);
+    border-left:none;
+    border-right:none;
+    border-bottom:none;
+    font:inherit;
     font-size:0.72rem;
     text-transform:uppercase;
     letter-spacing:0.05em;
     font-weight:600;
     color:var(--ink-soft);
+    cursor:pointer;
+    text-align:left;
   }
+  .group-header:focus-visible{outline:2px solid var(--accent);outline-offset:-2px;}
   .group-header .count{
     color:var(--muted);
     font-weight:500;
     text-transform:none;
     letter-spacing:normal;
   }
+  .group-header .chevron{
+    margin-left:auto;
+    font-size:0.7rem;
+    color:var(--muted);
+    transition:transform 0.15s ease;
+  }
+  .group-header[aria-expanded="false"] .chevron{transform:rotate(-90deg);}
 
   .row{
     display:grid;
@@ -276,13 +294,6 @@
 
   .row-wrap{display:contents;}
 
-  footer{
-    margin-top:22px;
-    font-size:0.78rem;
-    color:var(--muted);
-    text-align:center;
-  }
-
   @media (max-width:640px){
     .roster-head{display:none;}
     .row{
@@ -328,8 +339,6 @@
     <div id="rosterBody"></div>
   </div>
 
-  <footer>Rejestr prowadzony ręcznie przez skarbnika klasy · dane aktualizowane po każdej zgłoszonej wpłacie</footer>
-
 </div>
 
 <script>
@@ -372,6 +381,8 @@
 
   var ACTIVE_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
   var sortMode = "list";
+  // Domyślnie grupa "bez zaległości" jest zwinięta, żeby od razu widzieć, komu przypomnieć.
+  var groupCollapsed = { settled: true, owing: false };
 
   function money(n){
     return n.toLocaleString("pl-PL", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł";
@@ -456,6 +467,20 @@
     return wrap;
   }
 
+  function makeGroupHeader(label, count, key){
+    var btn = document.createElement("button");
+    btn.type = "button";
+    btn.className = "group-header";
+    var collapsed = groupCollapsed[key];
+    btn.setAttribute("aria-expanded", String(!collapsed));
+    btn.innerHTML = label + ' <span class="count">(' + count + ')</span><span class="chevron">▾</span>';
+    btn.addEventListener("click", function(){
+      groupCollapsed[key] = !groupCollapsed[key];
+      render();
+    });
+    return btn;
+  }
+
   function render(){
     var cat = ACTIVE_CATEGORY;
     document.getElementById("categoryPill").textContent = cat.name;
@@ -475,17 +500,15 @@
       var settled = rows.filter(function(r){ return r.status === "paid"; });
       var owing = rows.filter(function(r){ return r.status !== "paid"; });
 
-      var h1 = document.createElement("div");
-      h1.className = "group-header";
-      h1.innerHTML = "Bez zaległości <span class=\"count\">(" + settled.length + ")</span>";
-      body.appendChild(h1);
-      settled.forEach(function(r){ body.appendChild(makeRowPair(r)); });
+      body.appendChild(makeGroupHeader("Bez zaległości", settled.length, "settled"));
+      if (!groupCollapsed.settled) {
+        settled.forEach(function(r){ body.appendChild(makeRowPair(r)); });
+      }
 
-      var h2 = document.createElement("div");
-      h2.className = "group-header";
-      h2.innerHTML = "Do przypomnienia <span class=\"count\">(" + owing.length + ")</span>";
-      body.appendChild(h2);
-      owing.forEach(function(r){ body.appendChild(makeRowPair(r)); });
+      body.appendChild(makeGroupHeader("Do przypomnienia", owing.length, "owing"));
+      if (!groupCollapsed.owing) {
+        owing.forEach(function(r){ body.appendChild(makeRowPair(r)); });
+      }
     } else {
       rows.forEach(function(r){ body.appendChild(makeRowPair(r)); });
     }
