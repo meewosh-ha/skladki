@@ -346,7 +346,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-10T21:48"
+    updated: "2026-09-10T22:25"
   };
 
   var STUDENTS = [
@@ -381,8 +381,8 @@
 
   var ACTIVE_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
   var sortMode = "list";
-  // Domyślnie grupa "bez zaległości" jest zwinięta, żeby od razu widzieć, komu przypomnieć.
-  var groupCollapsed = { settled: true, owing: false };
+  // Obie grupy domyślnie rozwinięte — zwijanie jest tylko opcją użytkownika (toggle).
+  var groupCollapsed = { settled: false, owing: false };
 
   function money(n){
     return n.toLocaleString("pl-PL", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł";
@@ -500,14 +500,14 @@
       var settled = rows.filter(function(r){ return r.status === "paid"; });
       var owing = rows.filter(function(r){ return r.status !== "paid"; });
 
-      body.appendChild(makeGroupHeader("Bez zaległości", settled.length, "settled"));
-      if (!groupCollapsed.settled) {
-        settled.forEach(function(r){ body.appendChild(makeRowPair(r)); });
-      }
-
       body.appendChild(makeGroupHeader("Do przypomnienia", owing.length, "owing"));
       if (!groupCollapsed.owing) {
         owing.forEach(function(r){ body.appendChild(makeRowPair(r)); });
+      }
+
+      body.appendChild(makeGroupHeader("Bez zaległości", settled.length, "settled"));
+      if (!groupCollapsed.settled) {
+        settled.forEach(function(r){ body.appendChild(makeRowPair(r)); });
       }
     } else {
       rows.forEach(function(r){ body.appendChild(makeRowPair(r)); });
