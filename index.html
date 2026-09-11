@@ -346,7 +346,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-10T22:46"
+    updated: "2026-09-11T08:28"
   };
 
   var STUDENTS = [
@@ -354,7 +354,7 @@
     "Dziurla Maja","Fiedorowicz Laura","Foltyński Nikodem","Górkiewicz Julia",
     "Hałamko Filip","Hresiuk Anna","Jałguszewski Mikołaj","Kasperska Laura",
     "Kubsik Jagoda","Kwaśnicki Stanisław","Mackiewicz Ewa","Martinez-Smolińska Lena",
-    "Podhajski Szymo","Popovych Sofia","Przybył Carmen","Rudnicka Rosalia",
+    "Podhajski Szymon","Popovych Sofia","Przybył Carmen","Rudnicka Rosalia",
     "Szkolmowski Jakub","Wieczorek Joachim","Zabołotna Zuzanna"
   ].map(function(name, i){ return { id: "s" + (i+1), name: name }; });
 
@@ -377,7 +377,10 @@
     { studentId: "s8",  categoryId: "skladka-2026-27", amount: 200, date: "2026-09-10" }, // Górkiewicz Julia
     { studentId: "s15", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-10" }, // Mackiewicz Ewa
     { studentId: "s10", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-10" }, // Hresiuk Anna
-    { studentId: "s3",  categoryId: "skladka-2026-27", amount: 300, date: "2026-09-10" }  // Bolechowski Kaj
+    { studentId: "s3",  categoryId: "skladka-2026-27", amount: 300, date: "2026-09-10" }, // Bolechowski Kaj
+    { studentId: "s21", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-11" }, // Szkolmowski Jakub
+    { studentId: "s2",  categoryId: "skladka-2026-27", amount: 200, date: "2026-09-11" }, // Bilon Mikołaj
+    { studentId: "s17", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-11" }  // Podhajski Szymon
   ];
 
   var ACTIVE_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
