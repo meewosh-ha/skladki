@@ -29,6 +29,10 @@
     --bad:#8A3E3A;
     --bad-soft:#F2E4E1;
     --shadow: 0 1px 2px rgba(35,44,54,0.06), 0 6px 20px -12px rgba(35,44,54,0.25);
+    /* tile-bg = zawsze jaśniejszy z pary surface/surface-alt, list-bg = zawsze ciemniejszy —
+       w jasnym motywie surface (biel) jest jaśniejszy, w ciemnym to surface-alt, stąd osobne tokeny. */
+    --tile-bg:var(--surface);
+    --list-bg:var(--surface-alt);
   }
   @media (prefers-color-scheme: dark){
     :root:not([data-theme="light"]){
@@ -49,6 +53,8 @@
       --bad:#E19891;
       --bad-soft:#3A2624;
       --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -14px rgba(0,0,0,0.55);
+      --tile-bg:var(--surface-alt);
+      --list-bg:var(--surface);
     }
   }
   :root[data-theme="dark"]{
@@ -69,6 +75,8 @@
     --bad:#E19891;
     --bad-soft:#3A2624;
     --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 10px 24px -14px rgba(0,0,0,0.55);
+    --tile-bg:var(--surface-alt);
+    --list-bg:var(--surface);
   }
 
   *{box-sizing:border-box;}
@@ -158,7 +166,7 @@
   }
   .balance-tile{
     flex:1 1 160px;
-    background:var(--surface);
+    background:var(--tile-bg);
     border:1px solid var(--border);
     border-radius:10px;
     padding:10px 14px;
@@ -220,8 +228,8 @@
     background:var(--surface);
     box-shadow:var(--shadow);
   }
-  .roster.roster-wydatki{background:var(--surface-alt);}
-  .roster.roster-wydatki .roster-head{background:var(--surface);}
+  .roster.roster-wydatki{background:var(--list-bg);}
+  .roster.roster-wydatki .roster-head{background:var(--tile-bg);}
   .roster-head{
     display:grid;
     grid-template-columns:2.3fr 1fr 1fr;
@@ -435,7 +443,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-15T16:30"
+    updated: "2026-09-15T16:34"
   };
 
   var STUDENTS = [
