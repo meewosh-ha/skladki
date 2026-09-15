@@ -419,7 +419,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-15T15:41"
+    updated: "2026-09-15T15:42"
   };
 
   var STUDENTS = [
@@ -464,6 +464,7 @@
   // Każdy wpis: { description, amount, date: "YYYY-MM-DD", semester: 1 lub 2, note? }
   // semester mówi, z puli którego semestru pokrywany jest wydatek (patrz semester1Amount w CATEGORIES).
   var EXPENSES = [
+    { description: "Teczki na prace uczniów", amount: 101.14, date: "2026-09-15", semester: 1 }
   ];
 
   var ACTIVE_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
