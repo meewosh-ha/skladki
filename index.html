@@ -350,6 +350,10 @@
   .row-wrap{display:contents;}
 
   @media (max-width:640px){
+    .balance-row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+    }
     .roster-head{display:none;}
     .row{
       grid-template-columns:1fr auto;
@@ -429,7 +433,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-15T15:49"
+    updated: "2026-09-15T16:25"
   };
 
   var STUDENTS = [
