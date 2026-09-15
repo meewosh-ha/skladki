@@ -120,19 +120,60 @@
     display:inline-flex;
     align-items:center;
     gap:8px;
-    background:var(--accent-soft);
-    color:var(--accent-ink);
-    border:1px solid var(--accent);
+    background:transparent;
+    color:var(--muted);
+    border:1px solid var(--border);
     border-radius:999px;
     padding:7px 14px;
     font-size:0.85rem;
     font-weight:600;
+    font-family:inherit;
+    cursor:pointer;
+  }
+  .category-pill:hover{border-color:var(--accent);color:var(--ink-soft);}
+  .category-pill:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+  .category-pill.active{
+    background:var(--accent-soft);
+    color:var(--accent-ink);
+    border-color:var(--accent);
   }
   .category-target{
     font-family:'IBM Plex Mono',monospace;
     font-size:0.8rem;
     color:var(--muted);
   }
+
+  .balance-row{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:16px;
+  }
+  .balance-tile{
+    flex:1 1 160px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:10px;
+    padding:10px 14px;
+    box-shadow:var(--shadow);
+  }
+  .balance-tile .balance-label{
+    display:block;
+    font-size:0.72rem;
+    text-transform:uppercase;
+    letter-spacing:0.05em;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  .balance-tile .balance-value{
+    display:block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:1.15rem;
+    font-weight:600;
+    color:var(--ink);
+    font-variant-numeric:tabular-nums;
+  }
+  .balance-tile.balance-main .balance-value{color:var(--accent-ink);}
 
   .toolbar{
     display:flex;
@@ -252,6 +293,13 @@
     color:var(--ink-soft);
   }
   .status{text-align:right;}
+  .exp-date{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:0.85rem;
+    text-align:right;
+    color:var(--muted);
+    font-variant-numeric:tabular-nums;
+  }
   .badge{
     display:inline-block;
     font-size:0.72rem;
@@ -304,8 +352,13 @@
     }
     .row .name{grid-area:name;}
     .row .status{grid-area:status;}
-    .row .amount{grid-area:amount;text-align:left;}
-    .row .amount::before{content:"Wpłacono: ";color:var(--muted);}
+    .row:not(.exp-row) .amount{grid-area:amount;text-align:left;}
+    .row:not(.exp-row) .amount::before{content:"Wpłacono: ";color:var(--muted);}
+
+    .row.exp-row{grid-template-areas:"name name" "date amount";}
+    .row.exp-row .exp-date{grid-area:date;text-align:left;}
+    .row.exp-row .exp-date::before{content:"Data: ";color:var(--muted);}
+    .row.exp-row .amount{grid-area:amount;text-align:right;}
   }
 </style>
 </head>
@@ -319,11 +372,27 @@
   </div>
 
   <div class="category-row">
-    <span class="category-pill" id="categoryPill">Składka klasowa 2026/27</span>
+    <button type="button" class="category-pill active" id="pillSkladka" data-section="skladka">Składka klasowa 2026/27</button>
+    <button type="button" class="category-pill" id="pillWydatki" data-section="wydatki">Wydatki</button>
     <span class="category-target" id="categoryTarget"></span>
   </div>
 
-  <div class="toolbar">
+  <div class="balance-row" id="balanceRow" hidden>
+    <div class="balance-tile balance-main">
+      <span class="balance-label">Saldo</span>
+      <span class="balance-value" id="balanceValue">0 zł</span>
+    </div>
+    <div class="balance-tile">
+      <span class="balance-label">Wpłaty łącznie</span>
+      <span class="balance-value" id="totalPaidValue">0 zł</span>
+    </div>
+    <div class="balance-tile">
+      <span class="balance-label">Wydatki łącznie</span>
+      <span class="balance-value" id="totalExpensesValue">0 zł</span>
+    </div>
+  </div>
+
+  <div class="toolbar" id="toolbar">
     <div class="sort-toggle" role="group" aria-label="Kolejność">
       <button type="button" data-sort="list" class="active">Lista klasy</button>
       <button type="button" data-sort="paid">Wpłaty</button>
@@ -346,7 +415,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-15T14:24"
+    updated: "2026-09-15T15:34"
   };
 
   var STUDENTS = [
@@ -385,7 +454,12 @@
     { studentId: "s9",  categoryId: "skladka-2026-27", amount: 150, date: "2026-09-15" }  // Hałamko Filip
   ];
 
+  // Każdy wpis: { description, amount, date: "YYYY-MM-DD", note? }
+  var EXPENSES = [
+  ];
+
   var ACTIVE_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
+  var ACTIVE_SECTION = "skladka"; // "skladka" | "wydatki"
   var sortMode = "list";
   // Obie grupy domyślnie rozwinięte — zwijanie jest tylko opcją użytkownika (toggle).
   var groupCollapsed = { settled: false, owing: false };
@@ -473,6 +547,16 @@
     return wrap;
   }
 
+  function makeExpenseRow(e){
+    var row = document.createElement("div");
+    row.className = "row exp-row";
+    row.innerHTML =
+      '<div class="name">' + e.description + (e.note ? '<br><span class="no" style="margin:0;">' + e.note + '</span>' : '') + '</div>' +
+      '<div class="exp-date">' + fmtDate(e.date) + '</div>' +
+      '<div class="amount">' + money(e.amount) + '</div>';
+    return row;
+  }
+
   function makeGroupHeader(label, count, key){
     var btn = document.createElement("button");
     btn.type = "button";
@@ -487,11 +571,13 @@
     return btn;
   }
 
-  function render(){
+  function renderSkladka(){
     var cat = ACTIVE_CATEGORY;
-    document.getElementById("categoryPill").textContent = cat.name;
+    document.getElementById("categoryTarget").hidden = false;
     document.getElementById("categoryTarget").textContent = "Cel: " + cat.note;
-    document.getElementById("updatedDate").textContent = fmtDateTime(CLASS_INFO.updated);
+    document.getElementById("balanceRow").hidden = true;
+    document.getElementById("toolbar").hidden = false;
+    document.getElementById("rosterHead").innerHTML = "<span>Dziecko</span><span>Wpłacono</span><span>Status</span>";
 
     var rows = STUDENTS.map(function(s){
       var paid = paidFor(s.id, cat.id);
@@ -519,6 +605,53 @@
       rows.forEach(function(r){ body.appendChild(makeRowPair(r)); });
     }
   }
+
+  function renderWydatki(){
+    document.getElementById("categoryTarget").hidden = true;
+    document.getElementById("toolbar").hidden = true;
+    document.getElementById("rosterHead").innerHTML = "<span>Opis</span><span>Data</span><span>Kwota</span>";
+
+    var totalPaid = PAYMENTS.reduce(function(sum, p){ return sum + p.amount; }, 0);
+    var totalExpenses = EXPENSES.reduce(function(sum, e){ return sum + e.amount; }, 0);
+    var balanceRow = document.getElementById("balanceRow");
+    balanceRow.hidden = false;
+    document.getElementById("balanceValue").textContent = money(totalPaid - totalExpenses);
+    document.getElementById("totalPaidValue").textContent = money(totalPaid);
+    document.getElementById("totalExpensesValue").textContent = money(totalExpenses);
+
+    var body = document.getElementById("rosterBody");
+    body.innerHTML = "";
+
+    var sorted = EXPENSES.slice().sort(function(a,b){ return a.date < b.date ? 1 : -1; });
+    if (sorted.length === 0) {
+      var empty = document.createElement("div");
+      empty.className = "detail";
+      empty.style.padding = "16px";
+      empty.innerHTML = '<div class="empty">Brak odnotowanych wydatków.</div>';
+      body.appendChild(empty);
+    } else {
+      sorted.forEach(function(e){ body.appendChild(makeExpenseRow(e)); });
+    }
+  }
+
+  function render(){
+    document.getElementById("updatedDate").textContent = fmtDateTime(CLASS_INFO.updated);
+    document.getElementById("pillSkladka").classList.toggle("active", ACTIVE_SECTION === "skladka");
+    document.getElementById("pillWydatki").classList.toggle("active", ACTIVE_SECTION === "wydatki");
+
+    if (ACTIVE_SECTION === "wydatki") {
+      renderWydatki();
+    } else {
+      renderSkladka();
+    }
+  }
+
+  Array.prototype.forEach.call(document.querySelectorAll(".category-pill"), function(btn){
+    btn.addEventListener("click", function(){
+      ACTIVE_SECTION = btn.getAttribute("data-section");
+      render();
+    });
+  });
 
   Array.prototype.forEach.call(document.querySelectorAll(".sort-toggle button"), function(btn){
     btn.addEventListener("click", function(){
