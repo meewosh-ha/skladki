@@ -100,12 +100,19 @@
     margin:0;
     color:var(--ink);
   }
+  .masthead-meta{
+    display:flex;
+    flex-direction:column;
+    align-items:flex-end;
+    gap:4px;
+  }
   .masthead .updated{
     font-family:'IBM Plex Mono',monospace;
     font-size:0.82rem;
     color:var(--muted);
   }
-  .masthead .updated #updatedDate{
+  .masthead .updated #updatedDate,
+  .masthead .updated #currentBalance{
     color:var(--ink-soft);
   }
 
@@ -368,7 +375,10 @@
 
   <div class="masthead">
     <h1>Klasa 1d</h1>
-    <div class="updated">Ostatnia aktualizacja: <span id="updatedDate">—</span></div>
+    <div class="masthead-meta">
+      <div class="updated">Aktualne saldo: <span id="currentBalance">—</span></div>
+      <div class="updated">Ostatnia aktualizacja: <span id="updatedDate">—</span></div>
+    </div>
   </div>
 
   <div class="category-row">
@@ -419,7 +429,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-15T15:42"
+    updated: "2026-09-15T15:49"
   };
 
   var STUDENTS = [
@@ -656,6 +666,9 @@
 
   function render(){
     document.getElementById("updatedDate").textContent = fmtDateTime(CLASS_INFO.updated);
+    var totalPaidAll = PAYMENTS.reduce(function(sum, p){ return sum + p.amount; }, 0);
+    var totalExpensesAll = EXPENSES.reduce(function(sum, e){ return sum + e.amount; }, 0);
+    document.getElementById("currentBalance").textContent = money(totalPaidAll - totalExpensesAll);
     document.getElementById("pillSkladka").classList.toggle("active", ACTIVE_SECTION === "skladka");
     document.getElementById("pillWydatki").classList.toggle("active", ACTIVE_SECTION === "wydatki");
 
