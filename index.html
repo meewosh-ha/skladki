@@ -379,8 +379,12 @@
 
   <div class="balance-row" id="balanceRow" hidden>
     <div class="balance-tile balance-main">
-      <span class="balance-label">Saldo</span>
-      <span class="balance-value" id="balanceValue">0 zł</span>
+      <span class="balance-label">Saldo I semestr</span>
+      <span class="balance-value" id="balanceS1Value">0 zł</span>
+    </div>
+    <div class="balance-tile balance-main">
+      <span class="balance-label">Saldo II semestr</span>
+      <span class="balance-value" id="balanceS2Value">0 zł</span>
     </div>
     <div class="balance-tile">
       <span class="balance-label">Wpłaty łącznie</span>
@@ -415,7 +419,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-15T15:34"
+    updated: "2026-09-15T15:41"
   };
 
   var STUDENTS = [
@@ -429,8 +433,11 @@
 
   // target: pełna kwota roczna (informacyjnie). dueNow: próg, od którego liczy się
   // "Opłacone" w bieżącym okresie — I semestr: 150 zł, II semestr: 300 zł (zmienić na starcie II semestru).
+  // semester1Amount: stały próg podziału wpłat na semestry (150 zł) — w odróżnieniu od dueNow
+  // NIE zmienia się na starcie II semestru, bo to on wyznacza, ile z każdej wpłaty należy
+  // do puli I semestru, a ile jest nadpłatą odłożoną na II semestr.
   var CATEGORIES = [
-    { id: "skladka-2026-27", name: "Składka klasowa 2026/27", target: 300, dueNow: 150, note: "300 zł/rok · 150 zł/semestr", active: true }
+    { id: "skladka-2026-27", name: "Składka klasowa 2026/27", target: 300, dueNow: 150, semester1Amount: 150, note: "300 zł/rok · 150 zł/semestr", active: true }
   ];
 
   // Każdy wpis: { studentId, categoryId, amount, date: "YYYY-MM-DD", note }
@@ -454,7 +461,8 @@
     { studentId: "s9",  categoryId: "skladka-2026-27", amount: 150, date: "2026-09-15" }  // Hałamko Filip
   ];
 
-  // Każdy wpis: { description, amount, date: "YYYY-MM-DD", note? }
+  // Każdy wpis: { description, amount, date: "YYYY-MM-DD", semester: 1 lub 2, note? }
+  // semester mówi, z puli którego semestru pokrywany jest wydatek (patrz semester1Amount w CATEGORIES).
   var EXPENSES = [
   ];
 
@@ -611,11 +619,22 @@
     document.getElementById("toolbar").hidden = true;
     document.getElementById("rosterHead").innerHTML = "<span>Opis</span><span>Data</span><span>Kwota</span>";
 
+    var s1Amount = ACTIVE_CATEGORY.semester1Amount || ACTIVE_CATEGORY.target;
+    var s1Collected = 0, s2Collected = 0;
+    STUDENTS.forEach(function(s){
+      var paid = paidFor(s.id, ACTIVE_CATEGORY.id);
+      s1Collected += Math.min(paid, s1Amount);
+      s2Collected += Math.max(paid - s1Amount, 0);
+    });
+    var s1Expenses = EXPENSES.filter(function(e){ return e.semester === 1; }).reduce(function(sum, e){ return sum + e.amount; }, 0);
+    var s2Expenses = EXPENSES.filter(function(e){ return e.semester === 2; }).reduce(function(sum, e){ return sum + e.amount; }, 0);
     var totalPaid = PAYMENTS.reduce(function(sum, p){ return sum + p.amount; }, 0);
     var totalExpenses = EXPENSES.reduce(function(sum, e){ return sum + e.amount; }, 0);
+
     var balanceRow = document.getElementById("balanceRow");
     balanceRow.hidden = false;
-    document.getElementById("balanceValue").textContent = money(totalPaid - totalExpenses);
+    document.getElementById("balanceS1Value").textContent = money(s1Collected - s1Expenses);
+    document.getElementById("balanceS2Value").textContent = money(s2Collected - s2Expenses);
     document.getElementById("totalPaidValue").textContent = money(totalPaid);
     document.getElementById("totalExpensesValue").textContent = money(totalExpenses);
 
