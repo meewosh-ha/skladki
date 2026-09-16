@@ -131,6 +131,7 @@
     flex-wrap:wrap;
     margin-bottom:16px;
   }
+  .category-pills{display:contents;}
   .category-pill{
     display:inline-flex;
     align-items:center;
@@ -396,7 +397,7 @@
   </div>
 
   <div class="category-row">
-    <button type="button" class="category-pill active" id="pillSkladka" data-section="skladka">Składka klasowa 2026/27</button>
+    <span id="categoryPills" class="category-pills"></span>
     <button type="button" class="category-pill" id="pillWydatki" data-section="wydatki">Wydatki</button>
     <span class="category-target" id="categoryTarget"></span>
   </div>
@@ -443,7 +444,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-16T11:10"
+    updated: "2026-09-16T11:14"
   };
 
   var STUDENTS = [
@@ -461,7 +462,8 @@
   // NIE zmienia się na starcie II semestru, bo to on wyznacza, ile z każdej wpłaty należy
   // do puli I semestru, a ile jest nadpłatą odłożoną na II semestr.
   var CATEGORIES = [
-    { id: "skladka-2026-27", name: "Składka klasowa 2026/27", target: 300, dueNow: 150, semester1Amount: 150, note: "300 zł/rok · 150 zł/semestr", active: true }
+    { id: "skladka-2026-27", name: "Składka klasowa 2026/27", target: 300, dueNow: 150, semester1Amount: 150, note: "300 zł/rok · 150 zł/semestr", active: true },
+    { id: "wycieczka-2026-09", name: "Wycieczka 2026.09", target: 20, dueNow: 20, note: "20 zł", active: true }
   ];
 
   // Każdy wpis: { studentId, categoryId, amount, date: "YYYY-MM-DD", note }
@@ -493,7 +495,7 @@
     { description: "Teczki na prace uczniów", amount: 101.14, date: "2026-09-15", semester: 1 }
   ];
 
-  var ACTIVE_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
+  var SELECTED_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
   var ACTIVE_SECTION = "skladka"; // "skladka" | "wydatki"
   var sortMode = "list";
   // Obie grupy domyślnie rozwinięte — zwijanie jest tylko opcją użytkownika (toggle).
@@ -548,7 +550,7 @@
     row.setAttribute("role", "button");
     row.setAttribute("aria-expanded", "false");
 
-    var history = historyFor(r.student.id, ACTIVE_CATEGORY.id);
+    var history = historyFor(r.student.id, SELECTED_CATEGORY.id);
 
     row.innerHTML =
       '<div class="name"><span class="no">' + listIndex + '.</span>' + r.student.name + '</div>' +
@@ -607,7 +609,7 @@
   }
 
   function renderSkladka(){
-    var cat = ACTIVE_CATEGORY;
+    var cat = SELECTED_CATEGORY;
     document.getElementById("categoryTarget").hidden = false;
     document.getElementById("categoryTarget").textContent = "Cel: " + cat.note;
     document.getElementById("balanceRow").hidden = true;
@@ -648,12 +650,16 @@
     document.getElementById("rosterBox").classList.add("roster-wydatki");
     document.getElementById("rosterHead").innerHTML = "<span>Opis</span><span>Data</span><span>Kwota</span>";
 
-    var s1Amount = ACTIVE_CATEGORY.semester1Amount || ACTIVE_CATEGORY.target;
+    // Saldo liczone łącznie ze wszystkich kategorii (jeden wspólny fundusz klasowy).
+    // Kategorie bez własnego semester1Amount (np. wycieczka) liczą się w całości do puli I semestru.
     var s1Collected = 0, s2Collected = 0;
-    STUDENTS.forEach(function(s){
-      var paid = paidFor(s.id, ACTIVE_CATEGORY.id);
-      s1Collected += Math.min(paid, s1Amount);
-      s2Collected += Math.max(paid - s1Amount, 0);
+    CATEGORIES.forEach(function(cat){
+      var s1Amount = cat.semester1Amount || cat.target;
+      STUDENTS.forEach(function(s){
+        var paid = paidFor(s.id, cat.id);
+        s1Collected += Math.min(paid, s1Amount);
+        s2Collected += Math.max(paid - s1Amount, 0);
+      });
     });
     var s1Expenses = EXPENSES.filter(function(e){ return e.semester === 1; }).reduce(function(sum, e){ return sum + e.amount; }, 0);
     var s2Expenses = EXPENSES.filter(function(e){ return e.semester === 2; }).reduce(function(sum, e){ return sum + e.amount; }, 0);
@@ -682,12 +688,29 @@
     }
   }
 
+  function renderCategoryPills(){
+    var container = document.getElementById("categoryPills");
+    container.innerHTML = "";
+    CATEGORIES.filter(function(c){ return c.active; }).forEach(function(cat){
+      var btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = "category-pill" + (ACTIVE_SECTION === "skladka" && SELECTED_CATEGORY.id === cat.id ? " active" : "");
+      btn.textContent = cat.name;
+      btn.addEventListener("click", function(){
+        ACTIVE_SECTION = "skladka";
+        SELECTED_CATEGORY = cat;
+        render();
+      });
+      container.appendChild(btn);
+    });
+  }
+
   function render(){
     document.getElementById("updatedDate").textContent = fmtDateTime(CLASS_INFO.updated);
     var totalPaidAll = PAYMENTS.reduce(function(sum, p){ return sum + p.amount; }, 0);
     var totalExpensesAll = EXPENSES.reduce(function(sum, e){ return sum + e.amount; }, 0);
     document.getElementById("currentBalance").textContent = money(totalPaidAll - totalExpensesAll);
-    document.getElementById("pillSkladka").classList.toggle("active", ACTIVE_SECTION === "skladka");
+    renderCategoryPills();
     document.getElementById("pillWydatki").classList.toggle("active", ACTIVE_SECTION === "wydatki");
 
     if (ACTIVE_SECTION === "wydatki") {
@@ -697,11 +720,9 @@
     }
   }
 
-  Array.prototype.forEach.call(document.querySelectorAll(".category-pill"), function(btn){
-    btn.addEventListener("click", function(){
-      ACTIVE_SECTION = btn.getAttribute("data-section");
-      render();
-    });
+  document.getElementById("pillWydatki").addEventListener("click", function(){
+    ACTIVE_SECTION = "wydatki";
+    render();
   });
 
   Array.prototype.forEach.call(document.querySelectorAll(".sort-toggle button"), function(btn){
