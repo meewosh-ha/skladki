@@ -444,7 +444,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-16T11:23"
+    updated: "2026-09-16T22:22"
   };
 
   var STUDENTS = [
@@ -462,7 +462,6 @@
   // NIE zmienia się na starcie II semestru, bo to on wyznacza, ile z każdej wpłaty należy
   // do puli I semestru, a ile jest nadpłatą odłożoną na II semestr.
   var CATEGORIES = [
-    { id: "wycieczka-2026-09", name: "Wycieczka 2026.09", target: 20, dueNow: 20, note: "20 zł", active: true },
     { id: "skladka-2026-27", name: "Składka klasowa 2026/27", target: 300, dueNow: 150, semester1Amount: 150, note: "300 zł/rok · 150 zł/semestr", active: true }
   ];
 
@@ -486,9 +485,7 @@
     { studentId: "s7",  categoryId: "skladka-2026-27", amount: 100, date: "2026-09-11" }, // Foltyński Nikodem (dopłata)
     { studentId: "s9",  categoryId: "skladka-2026-27", amount: 150, date: "2026-09-15" }, // Hałamko Filip
     { studentId: "s19", categoryId: "skladka-2026-27", amount: 200, date: "2026-09-16" }, // Przybył Carmen
-    { studentId: "s14", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-16" }, // Kwaśnicki Stanisław
-    { studentId: "s19", categoryId: "wycieczka-2026-09", amount: 20, date: "2026-09-16" }, // Przybył Carmen
-    { studentId: "s3",  categoryId: "wycieczka-2026-09", amount: 20, date: "2026-09-16" }  // Bolechowski Kaj
+    { studentId: "s14", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-16" }  // Kwaśnicki Stanisław
   ];
 
   // Każdy wpis: { description, amount, date: "YYYY-MM-DD", semester: 1 lub 2, note? }
@@ -653,7 +650,7 @@
     document.getElementById("rosterHead").innerHTML = "<span>Opis</span><span>Data</span><span>Kwota</span>";
 
     // Saldo liczone łącznie ze wszystkich kategorii (jeden wspólny fundusz klasowy).
-    // Kategorie bez własnego semester1Amount (np. wycieczka) liczą się w całości do puli I semestru.
+    // Kategorie bez własnego semester1Amount (jednorazowe zbiórki) liczą się w całości do puli I semestru.
     var s1Collected = 0, s2Collected = 0;
     CATEGORIES.forEach(function(cat){
       var s1Amount = cat.semester1Amount || cat.target;
