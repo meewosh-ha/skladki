@@ -444,17 +444,38 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-17T10:23"
+    updated: "2026-09-17T10:25"
   };
 
+  // Kolejność w tablicy = kolejność wyświetlania (alfabetyczna po nazwisku) i numeracja "1.", "2." itd.
+  // id NIE wynika z pozycji — nowi uczniowie dopisywani w środku (alfabetycznie) dostają kolejne wolne
+  // id na końcu puli (np. s24), żeby nie przesuwać id istniejących uczniów i nie zerwać PAYMENTS/EXPENSES.
   var STUDENTS = [
-    "Bekisz Aleksander","Bilon Mikołaj","Bolechowski Kaj","Drozdowski Olivier",
-    "Dziurla Maja","Fiedorowicz Laura","Foltyński Nikodem","Górkiewicz Julia",
-    "Hałamko Filip","Hresiuk Anna","Jałguszewski Mikołaj","Kasperska Laura",
-    "Kubsik Jagoda","Kwaśnicki Stanisław","Mackiewicz Ewa","Martinez-Smolińska Lena",
-    "Podhajski Szymon","Popovych Sofia","Przybył Carmen","Rudnicka Rosalia",
-    "Szkolmowski Jakub","Wieczorek Joachim","Zabołotna Zuzanna"
-  ].map(function(name, i){ return { id: "s" + (i+1), name: name }; });
+    { id: "s1",  name: "Bekisz Aleksander" },
+    { id: "s2",  name: "Bilon Mikołaj" },
+    { id: "s3",  name: "Bolechowski Kaj" },
+    { id: "s4",  name: "Drozdowski Olivier" },
+    { id: "s5",  name: "Dziurla Maja" },
+    { id: "s6",  name: "Fiedorowicz Laura" },
+    { id: "s7",  name: "Foltyński Nikodem" },
+    { id: "s8",  name: "Górkiewicz Julia" },
+    { id: "s9",  name: "Hałamko Filip" },
+    { id: "s10", name: "Hresiuk Anna" },
+    { id: "s11", name: "Jałguszewski Mikołaj" },
+    { id: "s12", name: "Kasperska Laura" },
+    { id: "s13", name: "Kubsik Jagoda" },
+    { id: "s14", name: "Kwaśnicki Stanisław" },
+    { id: "s15", name: "Mackiewicz Ewa" },
+    { id: "s24", name: "Marek Lev" },
+    { id: "s16", name: "Martinez-Smolińska Lena" },
+    { id: "s17", name: "Podhajski Szymon" },
+    { id: "s18", name: "Popovych Sofia" },
+    { id: "s19", name: "Przybył Carmen" },
+    { id: "s20", name: "Rudnicka Rosalia" },
+    { id: "s21", name: "Szkolmowski Jakub" },
+    { id: "s22", name: "Wieczorek Joachim" },
+    { id: "s23", name: "Zabołotna Zuzanna" }
+  ];
 
   // target: pełna kwota roczna (informacyjnie). dueNow: próg, od którego liczy się
   // "Opłacone" w bieżącym okresie — I semestr: 150 zł, II semestr: 300 zł (zmienić na starcie II semestru).
