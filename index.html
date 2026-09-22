@@ -423,8 +423,8 @@
 
   <div class="toolbar" id="toolbar">
     <div class="sort-toggle" role="group" aria-label="Kolejność">
-      <button type="button" data-sort="list" class="active">Lista klasy</button>
-      <button type="button" data-sort="paid">Wpłaty</button>
+      <button type="button" data-sort="paid" class="active">Wpłaty</button>
+      <button type="button" data-sort="list">Lista klasy</button>
     </div>
   </div>
 
@@ -444,7 +444,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-22T11:24"
+    updated: "2026-09-22T11:28"
   };
 
   // Kolejność w tablicy = kolejność wyświetlania (alfabetyczna po nazwisku) i numeracja "1.", "2." itd.
@@ -524,7 +524,7 @@
   var SELECTED_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
   // ?view=wydatki w URL otwiera od razu zakładkę Wydatki (do wysyłania bezpośredniego linku).
   var ACTIVE_SECTION = new URLSearchParams(window.location.search).get("view") === "wydatki" ? "wydatki" : "skladka";
-  var sortMode = "list";
+  var sortMode = "paid";
   // Obie grupy domyślnie rozwinięte — zwijanie jest tylko opcją użytkownika (toggle).
   var groupCollapsed = { settled: false, owing: false };
 
