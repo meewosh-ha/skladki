@@ -444,7 +444,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-22T10:53"
+    updated: "2026-09-22T11:11"
   };
 
   // Kolejność w tablicy = kolejność wyświetlania (alfabetyczna po nazwisku) i numeracja "1.", "2." itd.
@@ -517,7 +517,8 @@
   // Każdy wpis: { description, amount, date: "YYYY-MM-DD", semester: 1 lub 2, note? }
   // semester mówi, z puli którego semestru pokrywany jest wydatek (patrz semester1Amount w CATEGORIES).
   var EXPENSES = [
-    { description: "Teczki na prace uczniów", amount: 101.14, date: "2026-09-15", semester: 1 }
+    { description: "Teczki na prace uczniów", amount: 101.14, date: "2026-09-15", semester: 1 },
+    { description: "Kubki dla chłopców", amount: 213.98, date: "2026-09-22", semester: 1 }
   ];
 
   var SELECTED_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
