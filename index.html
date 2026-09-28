@@ -444,7 +444,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-09-28T11:23"
+    updated: "2026-09-28T11:25"
   };
 
   // Kolejność w tablicy = kolejność wyświetlania (alfabetyczna po nazwisku) i numeracja "1.", "2." itd.
@@ -533,7 +533,7 @@
   var groupCollapsed = { settled: false, owing: false };
 
   function money(n){
-    return n.toLocaleString("pl-PL", { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + " zł";
+    return n.toLocaleString("pl-PL", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " zł";
   }
 
   function paidFor(studentId, categoryId){
