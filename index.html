@@ -444,7 +444,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-10-18T20:45"
+    updated: "2026-10-19T09:47"
   };
 
   // Kolejność w tablicy = kolejność wyświetlania (alfabetyczna po nazwisku) i numeracja "1.", "2." itd.
@@ -515,7 +515,8 @@
     { studentId: "s16", categoryId: "skladka-2026-27", amount: 300, date: "2026-09-23" }, // Martinez-Smolińska Lena
     { studentId: "s25", categoryId: "skladka-2026-27", amount: 20,  date: "2026-09-28" }, // Bennett Gino
     { studentId: "s24", categoryId: "skladka-2026-27", amount: 20,  date: "2026-09-28" }, // Marek Lev
-    { studentId: "s23", categoryId: "skladka-2026-27", amount: 25,  date: "2026-10-18" }  // Zabołotna Zuzanna
+    { studentId: "s23", categoryId: "skladka-2026-27", amount: 25,  date: "2026-10-18" }, // Zabołotna Zuzanna
+    { studentId: "s22", categoryId: "skladka-2026-27", amount: 150, date: "2026-10-19" }  // Wieczorek Joachim (dopłata)
   ];
 
   // Każdy wpis: { description, amount, date: "YYYY-MM-DD", semester: 1 lub 2, note? }
@@ -523,7 +524,9 @@
   var EXPENSES = [
     { description: "Teczki na prace uczniów", amount: 101.14, date: "2026-09-15", semester: 1 },
     { description: "Kubki dla chłopców", amount: 213.98, date: "2026-09-22", semester: 1 },
-    { description: "Wycieczka (29.09)", amount: 413.50, date: "2026-09-28", semester: 1 }
+    { description: "Wycieczka (29.09)", amount: 413.50, date: "2026-09-28", semester: 1 },
+    { description: "Dzień Nauczyciela", amount: 90, date: "2026-10-15", semester: 1 },
+    { description: "Warsztaty kulinarne — pizza", amount: 625, date: "2026-10-19", semester: 1 }
   ];
 
   var SELECTED_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
