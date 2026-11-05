@@ -444,7 +444,7 @@
   "use strict";
 
   var CLASS_INFO = {
-    updated: "2026-10-30T11:43"
+    updated: "2026-11-05T18:31"
   };
 
   // Kolejność w tablicy = kolejność wyświetlania (alfabetyczna po nazwisku) i numeracja "1.", "2." itd.
@@ -519,7 +519,11 @@
     { studentId: "s22", categoryId: "skladka-2026-27", amount: 150, date: "2026-10-19" }, // Wieczorek Joachim (dopłata)
     { studentId: "s25", categoryId: "skladka-2026-27", amount: 280, date: "2026-10-21" }, // Bennett Gino (dopłata)
     { studentId: "s24", categoryId: "skladka-2026-27", amount: 25,  date: "2026-10-22" }, // Marek Lev (dopłata)
-    { studentId: "s23", categoryId: "skladka-2026-27", amount: 125, date: "2026-10-23" }  // Zabołotna Zuzanna (dopłata)
+    { studentId: "s23", categoryId: "skladka-2026-27", amount: 125, date: "2026-10-23" }, // Zabołotna Zuzanna (dopłata)
+    { studentId: "s6",  categoryId: "skladka-2026-27", amount: 100, date: "2026-10-03" }, // Fiedorowicz Laura (dopłata)
+    { studentId: "s8",  categoryId: "skladka-2026-27", amount: 100, date: "2026-11-05" }, // Górkiewicz Julia (dopłata)
+    { studentId: "s4",  categoryId: "skladka-2026-27", amount: 100, date: "2026-11-05" }, // Drozdowski Olivier (dopłata)
+    { studentId: "s24", categoryId: "skladka-2026-27", amount: 105, date: "2026-11-05" }  // Marek Lev (dopłata)
   ];
 
   // Każdy wpis: { description, amount, date: "YYYY-MM-DD", semester: 1 lub 2, note? }
@@ -531,7 +535,9 @@
     { description: "Dzień Nauczyciela", amount: 90, date: "2026-10-15", semester: 1 },
     { description: "Warsztaty kulinarne — pizza", amount: 575, date: "2026-10-19", semester: 1 },
     { description: "Składniki na koktajl", amount: 68.90, date: "2026-10-28", semester: 1 },
-    { description: "Chorągiewki", amount: 54.12, date: "2026-10-30", semester: 1 }
+    { description: "Chorągiewki", amount: 54.12, date: "2026-10-30", semester: 1 },
+    { description: "Wyjazd do filharmonii", amount: 1200, date: "2026-11-05", semester: 1 },
+    { description: "Prezenciki na mikołajki", amount: 75, date: "2026-11-05", semester: 1 }
   ];
 
   var SELECTED_CATEGORY = CATEGORIES.filter(function(c){ return c.active; })[0] || CATEGORIES[0];
